@@ -19,6 +19,14 @@
             --note-bg: #3e2723; /* Darker yellow/brown for notes */
             --note-border: #ffca28;
             --note-text: #ffe082;
+            
+            /* Search & Highlight Colors */
+            --search-bg: #333;
+            --search-text: #fff;
+            --highlight-color: #ffeb3b;
+            --highlight-text: #000;
+            --active-link-bg: rgba(100, 181, 246, 0.15);
+            --active-link-border: #64b5f6;
         }
 
         /* Light Theme Overrides */
@@ -35,6 +43,14 @@
             --note-bg: #fff3cd;
             --note-border: #ffc107;
             --note-text: #856404;
+
+            /* Search Light Mode */
+            --search-bg: #ffffff;
+            --search-text: #333;
+            --highlight-color: #ffff00;
+            --highlight-text: #000;
+            --active-link-bg: #e3f2fd;
+            --active-link-border: #336791;
         }
 
         body {
@@ -56,25 +72,69 @@
             left: 0;
             background-color: var(--secondary-color);
             border-right: 1px solid var(--border-color);
-            overflow-y: auto;
-            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
             transition: background-color 0.3s, border-color 0.3s;
         }
+
+        /* Search Container */
+        .search-container {
+            padding: 15px;
+            background-color: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--search-bg);
+            color: var(--search-text);
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        #searchInput:focus {
+            border-color: var(--primary-color);
+        }
+
+        .nav-items {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-top: 10px;
+            padding-bottom: 20px;
+        }
+
         .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
             font-size: 14px;
             color: var(--text-color);
             display: block;
-            transition: color 0.3s;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
         }
         .sidebar a:hover {
-            background-color: var(--primary-color);
-            color: var(--table-header-text);
+            background-color: var(--code-bg);
+            color: var(--primary-color);
         }
+        
+        /* Active Link State */
+        .sidebar a.active {
+            background-color: var(--active-link-bg);
+            border-left-color: var(--active-link-border);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
         .sidebar h3 {
             padding-left: 15px;
             color: var(--primary-color);
+            margin-top: 0;
         }
 
         /* Main Content */
@@ -85,6 +145,7 @@
         }
         h1, h2, h3 {
             color: var(--primary-color);
+            scroll-margin-top: 20px;
         }
         h1 { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
         h2 { margin-top: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
@@ -133,6 +194,14 @@
             margin: 20px 0;
         }
 
+        /* Search Highlight */
+        mark {
+            background-color: var(--highlight-color);
+            color: var(--highlight-text);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
         /* Theme Toggle Button */
         .theme-toggle {
             position: fixed;
@@ -165,28 +234,33 @@
 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀ Switch to Light Mode</button>
 
 <div class="sidebar">
-    <h3>PgSQL Guide</h3>
-    <a href="#intro">1. Introduction & Setup</a>
-    <a href="#pgsql-vs-sql">2. PostgreSQL vs SQL</a>
-    <a href="#databases">3. Managing Databases</a>
-    <a href="#tables">4. Managing Tables</a>
-    <a href="#crud">5. CRUD Operations</a>
-    <a href="#filtering">6. Filtering & Sorting</a>
-    <a href="#aggregates">7. Aggregates & Grouping</a>
-    <a href="#logic">8. Logic & Arithmetic</a>
-    <a href="#constraints">9. Constraints & Errors</a>
-    <a href="#datetime">10. Dates & Time</a>
-    <a href="#relations">11. Foreign Keys & Joins</a>
-    <a href="#advanced">12. Extensions & UUIDs</a>
-    <a href="#export">13. Exporting Data</a>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search keywords...">
+    </div>
+    <div class="nav-items">
+        <h3>PgSQL Guide</h3>
+        <a href="#intro" class="nav-link">1. Introduction & Setup</a>
+        <a href="#pgsql-vs-sql" class="nav-link">2. PostgreSQL vs SQL</a>
+        <a href="#databases" class="nav-link">3. Managing Databases</a>
+        <a href="#tables" class="nav-link">4. Managing Tables</a>
+        <a href="#crud" class="nav-link">5. CRUD Operations</a>
+        <a href="#filtering" class="nav-link">6. Filtering & Sorting</a>
+        <a href="#aggregates" class="nav-link">7. Aggregates & Grouping</a>
+        <a href="#logic" class="nav-link">8. Logic & Arithmetic</a>
+        <a href="#constraints" class="nav-link">9. Constraints & Errors</a>
+        <a href="#datetime" class="nav-link">10. Dates & Time</a>
+        <a href="#relations" class="nav-link">11. Foreign Keys & Joins</a>
+        <a href="#advanced" class="nav-link">12. Extensions & UUIDs</a>
+        <a href="#export" class="nav-link">13. Exporting Data</a>
+    </div>
 </div>
 
-<div class="content">
+<div class="content" id="mainContent">
 
     <h1>Complete PostgreSQL Learning Guide</h1>
     <p>Based on the "Learn PostgreSQL Tutorial - Full Course for Beginners" video. Use this document to master the command line interface (psql) and SQL concepts.</p>
 
-    <h2 id="intro">1. Introduction & Setup</h2>
+    <h2 id="intro" class="section">1. Introduction & Setup</h2>
     <p>PostgreSQL (Postgres) is an advanced, open-source object-relational database system. This guide focuses on using the <code>psql</code> command-line tool rather than GUI clients, as it provides a deeper understanding of the database.</p>
     
     <h3>Key Concepts</h3>
@@ -209,7 +283,7 @@
         <li><code>\q</code> : Quit/Exit psql.</li>
     </ul>
 
-    <h2 id="pgsql-vs-sql">2. PostgreSQL vs SQL: Differences & Similarities</h2>
+    <h2 id="pgsql-vs-sql" class="section">2. PostgreSQL vs SQL: Differences & Similarities</h2>
     <p>It is common for beginners to confuse "SQL" (the language) with "PostgreSQL" (the software).</p>
 
     <h3>The Distinction</h3>
@@ -258,7 +332,7 @@
         </tbody>
     </table>
 
-    <h2 id="databases">3. Managing Databases</h2>
+    <h2 id="databases" class="section">3. Managing Databases</h2>
     
     <h3>Create Database</h3>
     <pre><code>CREATE DATABASE test;</code></pre>
@@ -267,7 +341,7 @@
     <div class="note"><strong>Warning:</strong> Deleting a database is permanent and cannot be undone.</div>
     <pre><code>DROP DATABASE test;</code></pre>
 
-    <h2 id="tables">4. Managing Tables</h2>
+    <h2 id="tables" class="section">4. Managing Tables</h2>
     
     <h3>Data Types</h3>
     <ul>
@@ -293,7 +367,7 @@
     <h3>Drop Table</h3>
     <pre><code>DROP TABLE person;</code></pre>
 
-    <h2 id="crud">5. CRUD Operations</h2>
+    <h2 id="crud" class="section">5. CRUD Operations</h2>
     <p>CRUD stands for Create, Read, Update, Delete.</p>
 
     <h3>Create (Insert)</h3>
@@ -319,7 +393,7 @@ WHERE id = 1;</code></pre>
     <h3>Delete</h3>
     <pre><code>DELETE FROM person WHERE id = 1;</code></pre>
 
-    <h2 id="filtering">6. Filtering & Sorting</h2>
+    <h2 id="filtering" class="section">6. Filtering & Sorting</h2>
 
     <h3>Sorting (Order By)</h3>
     <pre><code>SELECT * FROM person ORDER BY country_of_birth ASC; -- Ascending
@@ -350,7 +424,7 @@ SELECT * FROM person WHERE country_of_birth = 'Poland' OR country_of_birth = 'Ch
         <li><code>ILIKE</code>: Pattern matching (Case Insensitive).</li>
     </ul>
 
-    <h2 id="aggregates">7. Aggregates & Grouping</h2>
+    <h2 id="aggregates" class="section">7. Aggregates & Grouping</h2>
     
     <h3>Functions</h3>
     <ul>
@@ -374,7 +448,7 @@ FROM person
 GROUP BY country_of_birth 
 HAVING COUNT(*) > 5;</code></pre>
 
-    <h2 id="logic">8. Logic & Arithmetic</h2>
+    <h2 id="logic" class="section">8. Logic & Arithmetic</h2>
     
     <h3>Arithmetic Operators</h3>
     <pre><code>SELECT 10 + 2; -- Addition
@@ -392,7 +466,7 @@ SELECT 10 % 3; -- Modulo (Remainder)</code></pre>
     <p>Returns NULL if the two arguments are equal. Useful for preventing "Division by Zero" errors.</p>
     <pre><code>SELECT 10 / NULLIF(0, 0); -- Returns NULL instead of error</code></pre>
 
-    <h2 id="constraints">9. Constraints & Error Handling</h2>
+    <h2 id="constraints" class="section">9. Constraints & Error Handling</h2>
     
     <h3>Constraints</h3>
     <ul>
@@ -415,7 +489,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO person (id, email) VALUES (1, 'new@mail.com')
 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;</code></pre>
 
-    <h2 id="datetime">10. Dates & Time</h2>
+    <h2 id="datetime" class="section">10. Dates & Time</h2>
     
     <h3>Current Time</h3>
     <pre><code>SELECT NOW(); -- Returns timestamp with timezone
@@ -433,7 +507,7 @@ SELECT EXTRACT(MONTH FROM NOW());</code></pre>
     <h3>Age Function</h3>
     <pre><code>SELECT AGE(NOW(), date_of_birth) FROM person;</code></pre>
 
-    <h2 id="relations">11. Foreign Keys & Joins</h2>
+    <h2 id="relations" class="section">11. Foreign Keys & Joins</h2>
     
     <h3>Foreign Key Concept</h3>
     <p>A column in one table that links to the Primary Key of another table.</p>
@@ -462,7 +536,7 @@ LEFT JOIN car ON person.car_id = car.id;</code></pre>
         </li>
     </ul>
 
-    <h2 id="advanced">12. Extensions & UUIDs</h2>
+    <h2 id="advanced" class="section">12. Extensions & UUIDs</h2>
     
     <h3>Extensions</h3>
     <p>Postgres is extensible. You can enable features like UUID generation.</p>
@@ -482,7 +556,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";</code></pre>
 INSERT INTO person (person_uid, first_name) 
 VALUES (uuid_generate_v4(), 'John');</code></pre>
 
-    <h2 id="export">13. Exporting Data</h2>
+    <h2 id="export" class="section">13. Exporting Data</h2>
     
     <h3>Export to CSV</h3>
     <p>Use the <code>\copy</code> command inside psql to export query results to a file.</p>
@@ -491,19 +565,78 @@ VALUES (uuid_generate_v4(), 'John');</code></pre>
 </div>
 
 <script>
+    // --- Theme Toggle Logic ---
     function toggleTheme() {
         const body = document.body;
         const button = document.getElementById('themeToggle');
-        
-        // Toggle the class on the body
         body.classList.toggle('light-theme');
-        
-        // Check if 'light-theme' is present to update text
         if (body.classList.contains('light-theme')) {
             button.innerText = '☾ Switch to Dark Mode';
         } else {
             button.innerText = '☀ Switch to Light Mode';
         }
+    }
+
+    // --- Active Section (ScrollSpy) Logic ---
+    const sections = document.querySelectorAll('.section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '-15% 0px -70% 0px', // Triggers when section near top
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => link.classList.remove('active'));
+                const id = entry.target.getAttribute('id');
+                const activeLink = document.querySelector(`.sidebar a[href="#${id}"]`);
+                if (activeLink) activeLink.classList.add('active');
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+
+    // --- Search & Highlight Logic ---
+    const searchInput = document.getElementById('searchInput');
+    const contentDiv = document.getElementById('mainContent');
+    const originalContent = contentDiv.innerHTML; // Store original content
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        contentDiv.innerHTML = originalContent; // Reset
+
+        if (searchTerm.length < 2) {
+            reAttachObserver(); // Re-bind scroll spy after DOM reset
+            return;
+        }
+
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        
+        // Recursive text node traversal to avoid breaking HTML tags
+        function highlightText(node) {
+            if (node.nodeType === 3) { // Text node
+                const text = node.nodeValue;
+                if (regex.test(text)) {
+                    const span = document.createElement('span');
+                    span.innerHTML = text.replace(regex, '<mark>$1</mark>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
+                Array.from(node.childNodes).forEach(highlightText);
+            }
+        }
+
+        highlightText(contentDiv);
+        reAttachObserver(); // Re-bind scroll spy after DOM modification
+    });
+
+    function reAttachObserver() {
+        const newSections = document.querySelectorAll('.section');
+        newSections.forEach(section => observer.observe(section));
     }
 </script>
 
