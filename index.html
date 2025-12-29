@@ -5,19 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PostgreSQL Course Notes - Full Guide</title>
     <style>
+        /* CSS Variables - Defaulting to Dark Theme */
         :root {
+            --primary-color: #64b5f6; /* Lighter blue for dark mode contrast */
+            --secondary-color: #1e1e1e; /* Dark Sidebar */
+            --bg-color: #121212; /* Main Background */
+            --text-color: #e0e0e0; /* Light Text */
+            --code-bg: #2d2d2d;
+            --code-text: #f06292;
+            --border-color: #444;
+            --table-header-text: #121212;
+            --link-hover: #42a5f5;
+            --note-bg: #3e2723; /* Darker yellow/brown for notes */
+            --note-border: #ffca28;
+            --note-text: #ffe082;
+        }
+
+        /* Light Theme Overrides */
+        body.light-theme {
             --primary-color: #336791;
             --secondary-color: #f8f9fa;
+            --bg-color: #ffffff;
             --text-color: #333;
             --code-bg: #f4f4f4;
+            --code-text: #d63384;
+            --border-color: #ddd;
+            --table-header-text: #ffffff;
+            --link-hover: #154673;
+            --note-bg: #fff3cd;
+            --note-border: #ffc107;
+            --note-text: #856404;
         }
+
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
             color: var(--text-color);
+            background-color: var(--bg-color);
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
+
         /* Sidebar Navigation */
         .sidebar {
             height: 100vh;
@@ -26,9 +55,10 @@
             top: 0;
             left: 0;
             background-color: var(--secondary-color);
-            border-right: 1px solid #ddd;
+            border-right: 1px solid var(--border-color);
             overflow-y: auto;
             padding-top: 20px;
+            transition: background-color 0.3s, border-color 0.3s;
         }
         .sidebar a {
             padding: 10px 15px;
@@ -36,15 +66,17 @@
             font-size: 14px;
             color: var(--text-color);
             display: block;
+            transition: color 0.3s;
         }
         .sidebar a:hover {
             background-color: var(--primary-color);
-            color: white;
+            color: var(--table-header-text);
         }
         .sidebar h3 {
             padding-left: 15px;
             color: var(--primary-color);
         }
+
         /* Main Content */
         .content {
             margin-left: 250px;
@@ -55,23 +87,23 @@
             color: var(--primary-color);
         }
         h1 { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
-        h2 { margin-top: 40px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        h2 { margin-top: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         
         /* Code Blocks */
         pre {
             background-color: var(--code-bg);
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 5px;
             padding: 15px;
             overflow-x: auto;
         }
         code {
             font-family: 'Consolas', 'Monaco', monospace;
-            color: #d63384;
+            color: var(--code-text);
             font-weight: bold;
         }
         pre code {
-            color: #333;
+            color: var(--text-color);
             font-weight: normal;
         }
         
@@ -82,7 +114,7 @@
             margin: 20px 0;
         }
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
         }
         th, td {
             padding: 10px;
@@ -90,38 +122,63 @@
         }
         th {
             background-color: var(--primary-color);
-            color: white;
+            color: var(--table-header-text);
         }
         
         .note {
-            background-color: #fff3cd;
-            border-left: 5px solid #ffc107;
+            background-color: var(--note-bg);
+            border-left: 5px solid var(--note-border);
+            color: var(--note-text);
             padding: 15px;
             margin: 20px 0;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: var(--table-header-text);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .theme-toggle:hover {
+            opacity: 0.9;
         }
         
         @media print {
             .sidebar { display: none; }
             .content { margin-left: 0; }
+            .theme-toggle { display: none; }
+            body { color: black; background: white; }
         }
     </style>
 </head>
 <body>
 
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀ Switch to Light Mode</button>
+
 <div class="sidebar">
     <h3>PgSQL Guide</h3>
     <a href="#intro">1. Introduction & Setup</a>
-    <a href="#databases">2. Managing Databases</a>
-    <a href="#tables">3. Managing Tables</a>
-    <a href="#crud">4. CRUD Operations</a>
-    <a href="#filtering">5. Filtering & Sorting</a>
-    <a href="#aggregates">6. Aggregates & Grouping</a>
-    <a href="#logic">7. Logic & Arithmetic</a>
-    <a href="#constraints">8. Constraints & Errors</a>
-    <a href="#datetime">9. Dates & Time</a>
-    <a href="#relations">10. Foreign Keys & Joins</a>
-    <a href="#advanced">11. Extensions & UUIDs</a>
-    <a href="#export">12. Exporting Data</a>
+    <a href="#pgsql-vs-sql">2. PostgreSQL vs SQL</a>
+    <a href="#databases">3. Managing Databases</a>
+    <a href="#tables">4. Managing Tables</a>
+    <a href="#crud">5. CRUD Operations</a>
+    <a href="#filtering">6. Filtering & Sorting</a>
+    <a href="#aggregates">7. Aggregates & Grouping</a>
+    <a href="#logic">8. Logic & Arithmetic</a>
+    <a href="#constraints">9. Constraints & Errors</a>
+    <a href="#datetime">10. Dates & Time</a>
+    <a href="#relations">11. Foreign Keys & Joins</a>
+    <a href="#advanced">12. Extensions & UUIDs</a>
+    <a href="#export">13. Exporting Data</a>
 </div>
 
 <div class="content">
@@ -152,7 +209,56 @@
         <li><code>\q</code> : Quit/Exit psql.</li>
     </ul>
 
-    <h2 id="databases">2. Managing Databases</h2>
+    <h2 id="pgsql-vs-sql">2. PostgreSQL vs SQL: Differences & Similarities</h2>
+    <p>It is common for beginners to confuse "SQL" (the language) with "PostgreSQL" (the software).</p>
+
+    <h3>The Distinction</h3>
+    <ul>
+        <li><strong>SQL (Structured Query Language):</strong> The standard language specification used to communicate with relational databases. It defines syntax like <code>SELECT</code>, <code>INSERT</code>, and <code>UPDATE</code>. Think of it as the "English language."</li>
+        <li><strong>PostgreSQL:</strong> A specific database management system (software) that <em>implements</em> SQL. Think of it as a specific person who speaks English (perhaps with a specific dialect). Other systems include MySQL, SQL Server, and Oracle.</li>
+    </ul>
+
+    <h3>Similarities to other SQL Databases</h3>
+    <ul>
+        <li><strong>Standard SQL Support:</strong> PostgreSQL adheres very closely to the ANSI-SQL standard. If you learn SQL in Postgres, 90% of your knowledge applies to MySQL or SQL Server.</li>
+        <li><strong>Relational Model:</strong> Like others, it uses Tables, Rows, Columns, Primary Keys, and Foreign Keys.</li>
+        <li><strong>ACID Compliance:</strong> Ensures transactions are processed reliably (Atomicity, Consistency, Isolation, Durability).</li>
+    </ul>
+
+    <h3>Key Differences (Why choose PostgreSQL?)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>PostgreSQL</th>
+                <th>Standard SQL / Others (e.g., MySQL)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Extensibility</strong></td>
+                <td>Highly extensible. You can define custom data types, operators, and index methods.</td>
+                <td>Usually limited to built-in features.</td>
+            </tr>
+            <tr>
+                <td><strong>Concurrency</strong></td>
+                <td>Uses MVCC (Multiversion Concurrency Control). Readers don't block writers and vice versa.</td>
+                <td>Often uses locking mechanisms that can cause bottlenecks in high-load scenarios.</td>
+            </tr>
+            <tr>
+                <td><strong>Data Types</strong></td>
+                <td>Advanced types: JSONB, Arrays, Geometric data, Network addresses, UUIDs.</td>
+                <td>Standard types: Int, Varchar, Date. JSON support is often less robust.</td>
+            </tr>
+            <tr>
+                <td><strong>License</strong></td>
+                <td>Open Source (PostgreSQL License). Free for any use.</td>
+                <td>Varies (e.g., Oracle and SQL Server are commercial/paid).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="databases">3. Managing Databases</h2>
     
     <h3>Create Database</h3>
     <pre><code>CREATE DATABASE test;</code></pre>
@@ -161,7 +267,7 @@
     <div class="note"><strong>Warning:</strong> Deleting a database is permanent and cannot be undone.</div>
     <pre><code>DROP DATABASE test;</code></pre>
 
-    <h2 id="tables">3. Managing Tables</h2>
+    <h2 id="tables">4. Managing Tables</h2>
     
     <h3>Data Types</h3>
     <ul>
@@ -187,7 +293,7 @@
     <h3>Drop Table</h3>
     <pre><code>DROP TABLE person;</code></pre>
 
-    <h2 id="crud">4. CRUD Operations</h2>
+    <h2 id="crud">5. CRUD Operations</h2>
     <p>CRUD stands for Create, Read, Update, Delete.</p>
 
     <h3>Create (Insert)</h3>
@@ -213,7 +319,7 @@ WHERE id = 1;</code></pre>
     <h3>Delete</h3>
     <pre><code>DELETE FROM person WHERE id = 1;</code></pre>
 
-    <h2 id="filtering">5. Filtering & Sorting</h2>
+    <h2 id="filtering">6. Filtering & Sorting</h2>
 
     <h3>Sorting (Order By)</h3>
     <pre><code>SELECT * FROM person ORDER BY country_of_birth ASC; -- Ascending
@@ -244,7 +350,7 @@ SELECT * FROM person WHERE country_of_birth = 'Poland' OR country_of_birth = 'Ch
         <li><code>ILIKE</code>: Pattern matching (Case Insensitive).</li>
     </ul>
 
-    <h2 id="aggregates">6. Aggregates & Grouping</h2>
+    <h2 id="aggregates">7. Aggregates & Grouping</h2>
     
     <h3>Functions</h3>
     <ul>
@@ -268,7 +374,7 @@ FROM person
 GROUP BY country_of_birth 
 HAVING COUNT(*) > 5;</code></pre>
 
-    <h2 id="logic">7. Logic & Arithmetic</h2>
+    <h2 id="logic">8. Logic & Arithmetic</h2>
     
     <h3>Arithmetic Operators</h3>
     <pre><code>SELECT 10 + 2; -- Addition
@@ -286,7 +392,7 @@ SELECT 10 % 3; -- Modulo (Remainder)</code></pre>
     <p>Returns NULL if the two arguments are equal. Useful for preventing "Division by Zero" errors.</p>
     <pre><code>SELECT 10 / NULLIF(0, 0); -- Returns NULL instead of error</code></pre>
 
-    <h2 id="constraints">8. Constraints & Error Handling</h2>
+    <h2 id="constraints">9. Constraints & Error Handling</h2>
     
     <h3>Constraints</h3>
     <ul>
@@ -309,7 +415,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO person (id, email) VALUES (1, 'new@mail.com')
 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;</code></pre>
 
-    <h2 id="datetime">9. Dates & Time</h2>
+    <h2 id="datetime">10. Dates & Time</h2>
     
     <h3>Current Time</h3>
     <pre><code>SELECT NOW(); -- Returns timestamp with timezone
@@ -327,7 +433,7 @@ SELECT EXTRACT(MONTH FROM NOW());</code></pre>
     <h3>Age Function</h3>
     <pre><code>SELECT AGE(NOW(), date_of_birth) FROM person;</code></pre>
 
-    <h2 id="relations">10. Foreign Keys & Joins</h2>
+    <h2 id="relations">11. Foreign Keys & Joins</h2>
     
     <h3>Foreign Key Concept</h3>
     <p>A column in one table that links to the Primary Key of another table.</p>
@@ -356,7 +462,7 @@ LEFT JOIN car ON person.car_id = car.id;</code></pre>
         </li>
     </ul>
 
-    <h2 id="advanced">11. Extensions & UUIDs</h2>
+    <h2 id="advanced">12. Extensions & UUIDs</h2>
     
     <h3>Extensions</h3>
     <p>Postgres is extensible. You can enable features like UUID generation.</p>
@@ -376,13 +482,30 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";</code></pre>
 INSERT INTO person (person_uid, first_name) 
 VALUES (uuid_generate_v4(), 'John');</code></pre>
 
-    <h2 id="export">12. Exporting Data</h2>
+    <h2 id="export">13. Exporting Data</h2>
     
     <h3>Export to CSV</h3>
     <p>Use the <code>\copy</code> command inside psql to export query results to a file.</p>
     <pre><code>\copy (SELECT * FROM person LEFT JOIN car ON person.car_id = car.id) TO '/path/to/results.csv' DELIMITER ',' CSV HEADER;</code></pre>
 
 </div>
+
+<script>
+    function toggleTheme() {
+        const body = document.body;
+        const button = document.getElementById('themeToggle');
+        
+        // Toggle the class on the body
+        body.classList.toggle('light-theme');
+        
+        // Check if 'light-theme' is present to update text
+        if (body.classList.contains('light-theme')) {
+            button.innerText = '☾ Switch to Dark Mode';
+        } else {
+            button.innerText = '☀ Switch to Light Mode';
+        }
+    }
+</script>
 
 </body>
 </html>
