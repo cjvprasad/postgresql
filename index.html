@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Course Notes - Full Guide</title>
+    <style>
+        :root {
+            --primary-color: #336791;
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --code-bg: #f4f4f4;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+        /* Sidebar Navigation */
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--secondary-color);
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 14px;
+            color: var(--text-color);
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .sidebar h3 {
+            padding-left: 15px;
+            color: var(--primary-color);
+        }
+        /* Main Content */
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            max-width: 900px;
+        }
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+        h1 { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
+        h2 { margin-top: 40px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        
+        /* Code Blocks */
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #d63384;
+            font-weight: bold;
+        }
+        pre code {
+            color: #333;
+            font-weight: normal;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .note {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        @media print {
+            .sidebar { display: none; }
+            .content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h3>PgSQL Guide</h3>
+    <a href="#intro">1. Introduction & Setup</a>
+    <a href="#databases">2. Managing Databases</a>
+    <a href="#tables">3. Managing Tables</a>
+    <a href="#crud">4. CRUD Operations</a>
+    <a href="#filtering">5. Filtering & Sorting</a>
+    <a href="#aggregates">6. Aggregates & Grouping</a>
+    <a href="#logic">7. Logic & Arithmetic</a>
+    <a href="#constraints">8. Constraints & Errors</a>
+    <a href="#datetime">9. Dates & Time</a>
+    <a href="#relations">10. Foreign Keys & Joins</a>
+    <a href="#advanced">11. Extensions & UUIDs</a>
+    <a href="#export">12. Exporting Data</a>
+</div>
+
+<div class="content">
+
+    <h1>Complete PostgreSQL Learning Guide</h1>
+    <p>Based on the "Learn PostgreSQL Tutorial - Full Course for Beginners" video. Use this document to master the command line interface (psql) and SQL concepts.</p>
+
+    <h2 id="intro">1. Introduction & Setup</h2>
+    <p>PostgreSQL (Postgres) is an advanced, open-source object-relational database system. This guide focuses on using the <code>psql</code> command-line tool rather than GUI clients, as it provides a deeper understanding of the database.</p>
+    
+    <h3>Key Concepts</h3>
+    <ul>
+        <li><strong>RDBMS:</strong> Relational Database Management System. Data is stored in tables (rows and columns).</li>
+        <li><strong>SQL:</strong> Structured Query Language. The standard language to interact with databases.</li>
+    </ul>
+
+    <h3>Connecting (psql)</h3>
+    <pre><code>psql -h localhost -p 5432 -U postgres -d postgres</code></pre>
+    <p>Flags: <code>-h</code> (host), <code>-p</code> (port), <code>-U</code> (username), <code>-d</code> (database name).</p>
+    
+    <h3>Common psql Commands</h3>
+    <ul>
+        <li><code>\l</code> : List all databases.</li>
+        <li><code>\c [dbname]</code> : Connect to a specific database.</li>
+        <li><code>\d</code> : List all tables (relations) in the current database.</li>
+        <li><code>\d [table_name]</code> : Describe the structure of a specific table.</li>
+        <li><code>\?</code> : Help menu for psql commands.</li>
+        <li><code>\q</code> : Quit/Exit psql.</li>
+    </ul>
+
+    <h2 id="databases">2. Managing Databases</h2>
+    
+    <h3>Create Database</h3>
+    <pre><code>CREATE DATABASE test;</code></pre>
+    
+    <h3>Delete Database</h3>
+    <div class="note"><strong>Warning:</strong> Deleting a database is permanent and cannot be undone.</div>
+    <pre><code>DROP DATABASE test;</code></pre>
+
+    <h2 id="tables">3. Managing Tables</h2>
+    
+    <h3>Data Types</h3>
+    <ul>
+        <li><code>INT</code>, <code>BIGINT</code>: Integers.</li>
+        <li><code>NUMERIC(19, 2)</code>: Decimal numbers (good for money).</li>
+        <li><code>VARCHAR(n)</code>: Variable-length strings (up to n chars).</li>
+        <li><code>DATE</code>: YYYY-MM-DD.</li>
+        <li><code>TIMESTAMP</code>: Date + Time.</li>
+        <li><code>BOOLEAN</code>: True/False.</li>
+        <li><code>BIGSERIAL</code>: Auto-incrementing integer (uses a Sequence).</li>
+    </ul>
+
+    <h3>Create Table</h3>
+    <pre><code>CREATE TABLE person (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    gender VARCHAR(7) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    email VARCHAR(150)
+);</code></pre>
+
+    <h3>Drop Table</h3>
+    <pre><code>DROP TABLE person;</code></pre>
+
+    <h2 id="crud">4. CRUD Operations</h2>
+    <p>CRUD stands for Create, Read, Update, Delete.</p>
+
+    <h3>Create (Insert)</h3>
+    <pre><code>INSERT INTO person (first_name, last_name, gender, date_of_birth)
+VALUES ('Anne', 'Smith', 'FEMALE', '1988-01-09');</code></pre>
+    <p><em>Note: If you use BIGSERIAL for ID, you do not need to insert the ID manually.</em></p>
+
+    <h3>Read (Select)</h3>
+    <pre><code>SELECT * FROM person; -- Select all columns
+SELECT first_name, last_name FROM person; -- Select specific columns</code></pre>
+
+    <h3>Limit and Offset</h3>
+    <pre><code>SELECT * FROM person LIMIT 10;
+SELECT * FROM person OFFSET 5 LIMIT 5;
+SELECT * FROM person OFFSET 5 FETCH FIRST 5 ROW ONLY; -- SQL Standard way</code></pre>
+
+    <h3>Update</h3>
+    <pre><code>UPDATE person 
+SET email = 'new_email@gmail.com' 
+WHERE id = 1;</code></pre>
+    <div class="note">Always use a <code>WHERE</code> clause with UPDATE/DELETE, or you will affect every row in the table.</div>
+
+    <h3>Delete</h3>
+    <pre><code>DELETE FROM person WHERE id = 1;</code></pre>
+
+    <h2 id="filtering">5. Filtering & Sorting</h2>
+
+    <h3>Sorting (Order By)</h3>
+    <pre><code>SELECT * FROM person ORDER BY country_of_birth ASC; -- Ascending
+SELECT * FROM person ORDER BY id DESC; -- Descending</code></pre>
+
+    <h3>Distinct Values</h3>
+    <p>Remove duplicates from the result set.</p>
+    <pre><code>SELECT DISTINCT country_of_birth FROM person;</code></pre>
+
+    <h3>The WHERE Clause</h3>
+    <pre><code>SELECT * FROM person WHERE gender = 'Female';
+SELECT * FROM person WHERE gender = 'Male' AND country_of_birth = 'Poland';
+SELECT * FROM person WHERE country_of_birth = 'Poland' OR country_of_birth = 'China';</code></pre>
+
+    <h3>Comparison Operators</h3>
+    <ul>
+        <li><code>=</code> (Equal), <code>&lt;&gt;</code> (Not Equal)</li>
+        <li><code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code></li>
+        <li><code>IN</code>: Check if value matches any in a list.
+            <pre><code>SELECT * FROM person WHERE country_of_birth IN ('China', 'Brazil', 'France');</code></pre>
+        </li>
+        <li><code>BETWEEN</code>: Check range.
+            <pre><code>SELECT * FROM person WHERE date_of_birth BETWEEN '2000-01-01' AND '2015-01-01';</code></pre>
+        </li>
+        <li><code>LIKE</code>: Pattern matching (Case Sensitive). <code>%</code> is a wildcard.
+            <pre><code>SELECT * FROM person WHERE email LIKE '%.com'; -- Ends with .com</code></pre>
+        </li>
+        <li><code>ILIKE</code>: Pattern matching (Case Insensitive).</li>
+    </ul>
+
+    <h2 id="aggregates">6. Aggregates & Grouping</h2>
+    
+    <h3>Functions</h3>
+    <ul>
+        <li><code>COUNT(*)</code>: Counts rows.</li>
+        <li><code>MAX(column)</code>: Finds maximum value.</li>
+        <li><code>MIN(column)</code>: Finds minimum value.</li>
+        <li><code>SUM(column)</code>: Sums values.</li>
+        <li><code>AVG(column)</code>: Calculates average.</li>
+    </ul>
+
+    <h3>GROUP BY</h3>
+    <p>Group rows that have the same values into summary rows.</p>
+    <pre><code>SELECT country_of_birth, COUNT(*) 
+FROM person 
+GROUP BY country_of_birth;</code></pre>
+
+    <h3>HAVING</h3>
+    <p>Filter groups after the aggregation (WHERE filters rows before grouping).</p>
+    <pre><code>SELECT country_of_birth, COUNT(*) 
+FROM person 
+GROUP BY country_of_birth 
+HAVING COUNT(*) > 5;</code></pre>
+
+    <h2 id="logic">7. Logic & Arithmetic</h2>
+    
+    <h3>Arithmetic Operators</h3>
+    <pre><code>SELECT 10 + 2; -- Addition
+SELECT 10 - 2; -- Subtraction
+SELECT 10 * 2; -- Multiplication
+SELECT 10 / 2; -- Division
+SELECT 10 ^ 2; -- Power
+SELECT 10 % 3; -- Modulo (Remainder)</code></pre>
+
+    <h3>COALESCE</h3>
+    <p>Returns the first non-null value in a list. Useful for providing default values.</p>
+    <pre><code>SELECT COALESCE(email, 'Email not provided') FROM person;</code></pre>
+
+    <h3>NULLIF</h3>
+    <p>Returns NULL if the two arguments are equal. Useful for preventing "Division by Zero" errors.</p>
+    <pre><code>SELECT 10 / NULLIF(0, 0); -- Returns NULL instead of error</code></pre>
+
+    <h2 id="constraints">8. Constraints & Error Handling</h2>
+    
+    <h3>Constraints</h3>
+    <ul>
+        <li><strong>NOT NULL:</strong> Column cannot be empty.</li>
+        <li><strong>UNIQUE:</strong> All values in a column must be distinct.</li>
+        <li><strong>PRIMARY KEY:</strong> Unique identifier for a row (Implies NOT NULL + UNIQUE).</li>
+        <li><strong>CHECK:</strong> Ensures values meet a specific condition.</li>
+    </ul>
+
+    <h4>Adding Constraints</h4>
+    <pre><code>ALTER TABLE person ADD CONSTRAINT unique_email UNIQUE (email);
+ALTER TABLE person ADD CONSTRAINT gender_check CHECK (gender = 'Female' OR gender = 'Male');</code></pre>
+
+    <h3>Handling Duplicates (ON CONFLICT)</h3>
+    <pre><code>-- Do Nothing on conflict
+INSERT INTO person (id, name) VALUES (1, 'John') 
+ON CONFLICT (id) DO NOTHING;
+
+-- Upsert (Update if exists)
+INSERT INTO person (id, email) VALUES (1, 'new@mail.com')
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;</code></pre>
+
+    <h2 id="datetime">9. Dates & Time</h2>
+    
+    <h3>Current Time</h3>
+    <pre><code>SELECT NOW(); -- Returns timestamp with timezone
+SELECT NOW()::DATE; -- Cast to date only
+SELECT NOW()::TIME; -- Cast to time only</code></pre>
+
+    <h3>Date Arithmetic</h3>
+    <pre><code>SELECT NOW() - INTERVAL '1 YEAR';
+SELECT NOW() + INTERVAL '10 MONTHS';</code></pre>
+
+    <h3>Extract Fields</h3>
+    <pre><code>SELECT EXTRACT(YEAR FROM NOW());
+SELECT EXTRACT(MONTH FROM NOW());</code></pre>
+
+    <h3>Age Function</h3>
+    <pre><code>SELECT AGE(NOW(), date_of_birth) FROM person;</code></pre>
+
+    <h2 id="relations">10. Foreign Keys & Joins</h2>
+    
+    <h3>Foreign Key Concept</h3>
+    <p>A column in one table that links to the Primary Key of another table.</p>
+    <pre><code>CREATE TABLE car (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    price NUMERIC(19, 2) NOT NULL
+);
+
+CREATE TABLE person (
+    -- ... other fields
+    car_id BIGINT REFERENCES car(id), -- Foreign Key
+    UNIQUE(car_id) -- One-to-One relationship constraint
+);</code></pre>
+
+    <h3>Joins</h3>
+    <ul>
+        <li><strong>INNER JOIN:</strong> Returns records that have matching values in both tables.
+            <pre><code>SELECT * FROM person 
+JOIN car ON person.car_id = car.id;</code></pre>
+        </li>
+        <li><strong>LEFT JOIN:</strong> Returns all records from the left table, and the matched records from the right table (NULL if no match).
+            <pre><code>SELECT * FROM person 
+LEFT JOIN car ON person.car_id = car.id;</code></pre>
+        </li>
+    </ul>
+
+    <h2 id="advanced">11. Extensions & UUIDs</h2>
+    
+    <h3>Extensions</h3>
+    <p>Postgres is extensible. You can enable features like UUID generation.</p>
+    <pre><code>SELECT * FROM pg_available_extensions;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";</code></pre>
+
+    <h3>UUID (Universally Unique Identifier)</h3>
+    <p>Better than simple integers for Primary Keys in distributed systems as they are globally unique.</p>
+    <pre><code>SELECT uuid_generate_v4(); -- Generates random UUID</code></pre>
+    <p><strong>Using UUID as Primary Key:</strong></p>
+    <pre><code>CREATE TABLE person (
+    person_uid UUID NOT NULL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL
+    -- ...
+);
+-- Insert
+INSERT INTO person (person_uid, first_name) 
+VALUES (uuid_generate_v4(), 'John');</code></pre>
+
+    <h2 id="export">12. Exporting Data</h2>
+    
+    <h3>Export to CSV</h3>
+    <p>Use the <code>\copy</code> command inside psql to export query results to a file.</p>
+    <pre><code>\copy (SELECT * FROM person LEFT JOIN car ON person.car_id = car.id) TO '/path/to/results.csv' DELIMITER ',' CSV HEADER;</code></pre>
+
+</div>
+
+</body>
+</html>
