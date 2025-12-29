@@ -7,16 +7,16 @@
     <style>
         /* CSS Variables - Defaulting to Dark Theme */
         :root {
-            --primary-color: #64b5f6; /* Lighter blue for dark mode contrast */
-            --secondary-color: #1e1e1e; /* Dark Sidebar */
-            --bg-color: #121212; /* Main Background */
-            --text-color: #e0e0e0; /* Light Text */
+            --primary-color: #64b5f6;
+            --secondary-color: #1e1e1e;
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
             --code-bg: #2d2d2d;
             --code-text: #f06292;
             --border-color: #444;
             --table-header-text: #121212;
             --link-hover: #42a5f5;
-            --note-bg: #3e2723; /* Darker yellow/brown for notes */
+            --note-bg: #3e2723;
             --note-border: #ffca28;
             --note-text: #ffe082;
             
@@ -27,6 +27,7 @@
             --highlight-text: #000;
             --active-link-bg: rgba(100, 181, 246, 0.15);
             --active-link-border: #64b5f6;
+            --header-height: 0px; /* Height of mobile header, 0 on desktop */
         }
 
         /* Light Theme Overrides */
@@ -44,7 +45,6 @@
             --note-border: #ffc107;
             --note-text: #856404;
 
-            /* Search Light Mode */
             --search-bg: #ffffff;
             --search-text: #333;
             --highlight-color: #ffff00;
@@ -63,7 +63,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Sidebar Navigation */
+        /* --- SIDEBAR --- */
         .sidebar {
             height: 100vh;
             width: 250px;
@@ -74,10 +74,10 @@
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: transform 0.3s ease, background-color 0.3s;
+            z-index: 1001; /* Above content */
         }
 
-        /* Search Container */
         .search-container {
             padding: 15px;
             background-color: var(--secondary-color);
@@ -97,10 +97,7 @@
             box-sizing: border-box;
             outline: none;
         }
-
-        #searchInput:focus {
-            border-color: var(--primary-color);
-        }
+        #searchInput:focus { border-color: var(--primary-color); }
 
         .nav-items {
             overflow-y: auto;
@@ -122,41 +119,36 @@
             background-color: var(--code-bg);
             color: var(--primary-color);
         }
-        
-        /* Active Link State */
         .sidebar a.active {
             background-color: var(--active-link-bg);
             border-left-color: var(--active-link-border);
             color: var(--primary-color);
             font-weight: bold;
         }
-
         .sidebar h3 {
             padding-left: 15px;
             color: var(--primary-color);
             margin-top: 0;
         }
 
-        /* Main Content */
+        /* --- MAIN CONTENT --- */
         .content {
             margin-left: 250px;
             padding: 40px;
             max-width: 900px;
+            transition: margin-left 0.3s;
         }
-        h1, h2, h3 {
-            color: var(--primary-color);
-            scroll-margin-top: 20px;
-        }
+        h1, h2, h3 { color: var(--primary-color); scroll-margin-top: 60px; }
         h1 { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
         h2 { margin-top: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
-        
-        /* Code Blocks */
+
+        /* Code Blocks & Tables */
         pre {
             background-color: var(--code-bg);
             border: 1px solid var(--border-color);
             border-radius: 5px;
             padding: 15px;
-            overflow-x: auto;
+            overflow-x: auto; /* Allow scrolling on small screens */
         }
         code {
             font-family: 'Consolas', 'Monaco', monospace;
@@ -167,24 +159,15 @@
             color: var(--text-color);
             font-weight: normal;
         }
-        
-        /* Tables */
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            display: table; /* Default */
         }
-        table, th, td {
-            border: 1px solid var(--border-color);
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: var(--primary-color);
-            color: var(--table-header-text);
-        }
+        table, th, td { border: 1px solid var(--border-color); }
+        th, td { padding: 10px; text-align: left; }
+        th { background-color: var(--primary-color); color: var(--table-header-text); }
         
         .note {
             background-color: var(--note-bg);
@@ -194,7 +177,6 @@
             margin: 20px 0;
         }
 
-        /* Search Highlight */
         mark {
             background-color: var(--highlight-color);
             color: var(--highlight-text);
@@ -202,7 +184,7 @@
             border-radius: 2px;
         }
 
-        /* Theme Toggle Button */
+        /* --- BUTTONS --- */
         .theme-toggle {
             position: fixed;
             top: 20px;
@@ -214,49 +196,117 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            z-index: 1000;
+            z-index: 1002;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .theme-toggle:hover {
-            opacity: 0.9;
+
+        /* Mobile Menu Button (Hidden on Desktop) */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: var(--primary-color);
+            color: var(--table-header-text);
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1003;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        
-        @media print {
-            .sidebar { display: none; }
-            .content { margin-left: 0; }
-            .theme-toggle { display: none; }
-            body { color: black; background: white; }
+
+        /* Overlay for mobile sidebar */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        /* --- MEDIA QUERIES (Mobile) --- */
+        @media (max-width: 768px) {
+            /* Sidebar hidden by default */
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px; /* Slightly wider for ease of use */
+                box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            }
+            
+            /* Sidebar visible state */
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 20px;
+                padding-top: 70px; /* Space for fixed buttons */
+            }
+
+            /* Show Hamburger */
+            .menu-toggle {
+                display: block;
+            }
+
+            /* Adjust Theme Toggle Position */
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            /* Ensure tables scroll horizontally */
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            /* Show Overlay when sidebar open */
+            .overlay.open {
+                display: block;
+            }
         }
     </style>
 </head>
 <body>
 
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀ Switch to Light Mode</button>
 
-<div class="sidebar">
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search keywords...">
     </div>
     <div class="nav-items">
         <h3>PgSQL Guide</h3>
-        <a href="#intro" class="nav-link">1. Introduction & Setup</a>
-        <a href="#pgsql-vs-sql" class="nav-link">2. PostgreSQL vs SQL</a>
-        <a href="#databases" class="nav-link">3. Managing Databases</a>
-        <a href="#tables" class="nav-link">4. Managing Tables</a>
-        <a href="#crud" class="nav-link">5. CRUD Operations</a>
-        <a href="#filtering" class="nav-link">6. Filtering & Sorting</a>
-        <a href="#aggregates" class="nav-link">7. Aggregates & Grouping</a>
-        <a href="#logic" class="nav-link">8. Logic & Arithmetic</a>
-        <a href="#constraints" class="nav-link">9. Constraints & Errors</a>
-        <a href="#datetime" class="nav-link">10. Dates & Time</a>
-        <a href="#relations" class="nav-link">11. Foreign Keys & Joins</a>
-        <a href="#advanced" class="nav-link">12. Extensions & UUIDs</a>
-        <a href="#export" class="nav-link">13. Exporting Data</a>
+        <a href="#intro" class="nav-link" onclick="closeSidebar()">1. Introduction & Setup</a>
+        <a href="#pgsql-vs-sql" class="nav-link" onclick="closeSidebar()">2. PostgreSQL vs SQL</a>
+        <a href="#databases" class="nav-link" onclick="closeSidebar()">3. Managing Databases</a>
+        <a href="#tables" class="nav-link" onclick="closeSidebar()">4. Managing Tables</a>
+        <a href="#crud" class="nav-link" onclick="closeSidebar()">5. CRUD Operations</a>
+        <a href="#filtering" class="nav-link" onclick="closeSidebar()">6. Filtering & Sorting</a>
+        <a href="#aggregates" class="nav-link" onclick="closeSidebar()">7. Aggregates & Grouping</a>
+        <a href="#logic" class="nav-link" onclick="closeSidebar()">8. Logic & Arithmetic</a>
+        <a href="#constraints" class="nav-link" onclick="closeSidebar()">9. Constraints & Errors</a>
+        <a href="#datetime" class="nav-link" onclick="closeSidebar()">10. Dates & Time</a>
+        <a href="#relations" class="nav-link" onclick="closeSidebar()">11. Foreign Keys & Joins</a>
+        <a href="#advanced" class="nav-link" onclick="closeSidebar()">12. Extensions & UUIDs</a>
+        <a href="#export" class="nav-link" onclick="closeSidebar()">13. Exporting Data</a>
     </div>
 </div>
 
 <div class="content" id="mainContent">
-
     <h1>Complete PostgreSQL Learning Guide</h1>
     <p>Based on the "Learn PostgreSQL Tutorial - Full Course for Beginners" video. Use this document to master the command line interface (psql) and SQL concepts.</p>
 
@@ -565,6 +615,21 @@ VALUES (uuid_generate_v4(), 'John');</code></pre>
 </div>
 
 <script>
+    // --- Mobile Menu Logic ---
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+    }
+
     // --- Theme Toggle Logic ---
     function toggleTheme() {
         const body = document.body;
@@ -583,7 +648,7 @@ VALUES (uuid_generate_v4(), 'John');</code></pre>
 
     const observerOptions = {
         root: null,
-        rootMargin: '-15% 0px -70% 0px', // Triggers when section near top
+        rootMargin: '-15% 0px -70% 0px', 
         threshold: 0
     };
 
@@ -616,7 +681,6 @@ VALUES (uuid_generate_v4(), 'John');</code></pre>
 
         const regex = new RegExp(`(${searchTerm})`, 'gi');
         
-        // Recursive text node traversal to avoid breaking HTML tags
         function highlightText(node) {
             if (node.nodeType === 3) { // Text node
                 const text = node.nodeValue;
